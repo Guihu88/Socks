@@ -19,11 +19,11 @@ apt-get install -y privoxy dante-server
 echo 'forward-socks5 / 127.0.0.1:1080 .' >> /etc/privoxy/config
 
 # 生成随机的SOCKS用户名和密码
-socks_username=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)
-socks_password=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)
+socks_username=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 8)
+socks_password=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 12)
 
 # 创建dante-server的认证文件
-echo "$socks_username:$(openssl passwd -crypt $socks_password)" >> /etc/danted.conf
+echo "$socks_username:$(openssl passwd -crypt $socks_password)" > /etc/danted.conf
 
 # 启动Privoxy和dante-server
 service privoxy restart
@@ -42,7 +42,7 @@ echo "密码：$socks_password"
 echo "端口：$proxy_port"
 echo "到期时间：$expiration_date"
 
-echo "到期时间：$expiration_date" >> /etc/socks_expiration.txt
+echo "到期时间：$expiration_date" > /etc/socks_expiration.txt
 
 # 配置防火墙规则，允许指定的代理端口
 iptables -A INPUT -p tcp --dport $proxy_port -j ACCEPT
